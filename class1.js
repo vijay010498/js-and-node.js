@@ -68,14 +68,8 @@ const sortedArray = arr.sort((a,b) =>{
 });
 console.log(sortedArray);
 
-// split
-// slice
-// splice
-// join
 
-// Async await
-// promise
-// callback
+
 
 
 
