@@ -151,6 +151,7 @@ const user = {
     cart : [],
     purchases : [],
 }
+const amazonHistory = [];
 
 
 // Implement the cart feature
@@ -161,7 +162,6 @@ const user = {
 
 
 // Bonus task
-// Accept refunds -
 // Track user history -  getUserHistory(user)
 
 // solution
@@ -176,18 +176,20 @@ function purchaseItem(...functions) {
 }
 
 console.log(purchaseItem(
-    //emptyCart
-    //buyItem
+    emptyCart,
+    buyItem,
     applyTaxToItems, // called with  - updated cart  - user object
     addItemToCart, // updated cart  - user object
 )(user, {name : 'laptop', price: 120000}));
 
 
 function addItemToCart(user, item) { // pure function
+    amazonHistory.push(user);
     const updatedCart = user.cart.concat(item);
     return Object.assign({},user, {cart : updatedCart});
 }
 function applyTaxToItems(user) {
+    amazonHistory.push(user);
     const {cart} = user; // const cart = user.cart
     const taxRate = 1.3;
     const updatedCart = cart.map((item) =>{
@@ -198,6 +200,18 @@ function applyTaxToItems(user) {
     });
     return Object.assign({}, user,{cart : updatedCart});
 }
+
+function buyItem(user) {
+    amazonHistory.push(user);
+    return Object.assign({}, user, {purchases : user.cart});
+}
+function emptyCart(user) {
+    amazonHistory.push(user);
+    return Object.assign({}, user , {cart : []});
+}
+console.log(amazonHistory);
+
+
 
 
 
