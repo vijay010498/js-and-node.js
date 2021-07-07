@@ -22,16 +22,16 @@ name = 55;
 
 // Principle to follow
 // Pure functions
-    // 1. Same input -> same output
-    // 2. No side effects
+// 1. Same input -> same output
+// 2. No side effects
 
 // No side effects
-const array =  [23, 23, 454,33453,234234,234]; // data
+const array = [23, 23, 454, 33453, 234234, 234]; // data
 // console.log(array);
 // console.log(...array);
 
 function mutateArray(arr) {
-    arr.forEach((item , index) => {
+    arr.forEach((item, index) => {
         arr[index] = item + 1;
     });
 }
@@ -42,13 +42,14 @@ function mutateArray1(arr) {
         return item + 1;
     });
 }
+
 //
 // console.log(array);
 // console.log(mutateArray1(array));
 // console.log(array);
 
 // same i/p => o/p
-function addTwo(num1 , num2) {
+function addTwo(num1, num2) {
     return num1 + num2 + Math.random();
 }
 
@@ -69,6 +70,7 @@ function addTwo(num1 , num2) {
 const obj = {
     name: 'name'
 }
+
 function clone(obj) {
     return {...obj}; // pure function
 }
@@ -105,13 +107,13 @@ const hof1 = (fn) => {
 
 // closure -
 const closure = function () {
-    let count = 0 ;
+    let count = 0;
     return function incr() {
         count++;
         return count;
     }
 }
-const increment  =  closure() ; //increment ?
+const increment = closure(); //increment ?
 //console.log(increment);
 // console.log(increment()); // o/p ?
 // console.log(increment());
@@ -120,10 +122,10 @@ const increment  =  closure() ; //increment ?
 
 // currying
 // 1 argument at a time
-const multiple = (a,b) =>{
+const multiple = (a, b) => {
     return a * b;
 }
-console.log(multiple(2,3));
+console.log(multiple(2, 3));
 const cMult = (a) => {
     return (b) => {
         return a * b; //
@@ -134,14 +136,42 @@ console.log(cumil5(6));
 
 // cooking competition
 let competitor = {
-    name : 'neha',
+    name: 'neha',
     totalDishesCooked: 0,
-    dishes : [],
-    ingredientsUsed : [],
-    cookingInProgress : '',
+    dishes: [],
+    ingredientsUsed: [],
+    cookingInProgress: '',
 }
-const ingredients = ['pasta' , 'pasta-sauce', 'olive-oil']
+const ingredients = ['pasta', 'pasta-sauce', 'olive-oil']
 const dish = 'Italian-Pasta'
+const ingredients1 = ['pasta', 'pasta-sauce', 'olive-oil']
+const dish1 = 'Italian-Pasta'
+const pip = (f, g) => {
+    return (...args) => {
+        return f(g(...args));
+    }
+}
+
+function makeACompetitorCooking(...functions) {
+    return functions.reduce(compose);
+}
+
+console.log(competitor);
+competitor = makeACompetitorCooking(
+    increaseTotalDishesCooked,
+    completeCooking,
+    cookingIngredients,
+    washTheIngredients,
+    collectTheIngredients
+)(competitor, ingredients, dish);
+competitor = makeACompetitorCooking(
+    increaseTotalDishesCooked,
+    completeCooking,
+    cookingIngredients,
+    washTheIngredients,
+    collectTheIngredients
+)(competitor, ingredients1, dish1);
+console.log(competitor);
 
 // Rules
 // At any given time a competitor can cook one dish at a time
@@ -154,10 +184,34 @@ const dish = 'Italian-Pasta'
 // 4. Complete the cooking //
 // 5. Update the totalDishesCooked //
 
-function  collectTheIngredients(competitor, ingredients, dish) {
+function collectTheIngredients(competitor, ingredients, dish) {
     const updatedIngredientsUsed = competitor.ingredientsUsed.concat(ingredients);
-    return Object.assign({}, competitor, {ingredientsUsed :updatedIngredientsUsed, cookingInProgress :  dish })
+    return Object.assign({}, competitor, {ingredientsUsed: updatedIngredientsUsed, cookingInProgress: dish})
 }
+
+
+function washTheIngredients(competitor) {
+    // const WashedIngredientsUsed = competitor.ingredients.concat(ingredients);
+    return Object.assign({}, competitor, {})
+}
+
+function cookingIngredients(competitor) {
+    // const CookingIngredientsUsed = competitor.ingredients.concat(ingredients);
+    return Object.assign({}, competitor, {})
+}
+
+function completeCooking(competitor, dish, ingredientsUsed) {
+    const currentCookingInProgress = competitor.cookingInProgress;
+    const updatedDishes = competitor.dishes.concat(currentCookingInProgress);
+    return Object.assign({}, competitor, {dishes: updatedDishes, cookingInProgress: ''});
+}
+
+function increaseTotalDishesCooked(competitor) {
+    const {dishes} = competitor;
+    const updatedDishesCooked = dishes.length;
+    return Object.assign({}, competitor, {totalDishesCooked: updatedDishesCooked});
+}
+
 
 
 
