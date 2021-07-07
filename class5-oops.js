@@ -105,7 +105,7 @@ console.log(peter.attack());
 // class
 // inheritance
 // extends
-// poly
-// enca
+// polymorphism
+// encapsulation
 // abstraction
 
