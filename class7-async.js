@@ -1,4 +1,4 @@
-// asynchronous js
+/*// asynchronous js
 // Web Apis
 // Callbacks
 // Async / await
@@ -103,7 +103,7 @@ grabTweets('twitter/vitalikbuternin', (error, vitalTweets) => {
     grabTweets('twitter/kishore', (error, kishoreTweets) => {
         displayTweets(kishoreTweets);
     });
-})
+})*/
 
 // cooking competition using async programming
 let competitor = {
@@ -131,11 +131,72 @@ const dish = 'Italian-Pasta'
 
 function collectTheIngredients(competitor, ingredients, dish, callback) {
     const updatedIngredientsUsed = competitor.ingredientsUsed.concat(ingredients);
-    const updatedObject = Object.assign({}, competitor, {
+    const updatedCompetitorObject = Object.assign({}, competitor, {
         ingredientsUsed: updatedIngredientsUsed,
         cookingInProgress: dish
     });
     console.log('Ingredients Collected ' + [...ingredients]);
-    return callback(updatedObject);
+    return callback(updatedCompetitorObject);
 }
+
+function washTheIngredient(competitor, callback) {
+    const updatedCompetitorObject = Object.assign({}, competitor, {});
+    console.log([...ingredients], " washed");
+    return callback(updatedCompetitorObject);
+}
+
+function cooking(competitor, callback) {
+    const updatedCompetitorObject = Object.assign({}, competitor, {});
+    console.log(competitor.cookingInProgress, "has been cooked ");
+    return callback(updatedCompetitorObject);
+}
+
+function completeTheCooking(competitor, callback) {
+    const currentCookingInProgress = competitor.cookingInProgress
+    const updatedDishes = competitor.dishes.concat(currentCookingInProgress);
+    const updatedCurrentCookingInProgress = '';
+    const updatedCompetitorObject = Object.assign({}, competitor, {
+        dishes: updatedDishes,
+        cookingInProgress: updatedCurrentCookingInProgress
+    });
+    console.log('Cooking completed');
+    return callback(updatedCompetitorObject);
+    // new Promise
+
+}
+
+function increaseTotalDishesCooked(competitor, callback) {
+    const {dishes} = competitor;
+    const updatedTotalDishesCooked = dishes.length;
+    const updatedCompetitorObject = Object.assign({}, competitor, {totalDishesCooked: updatedTotalDishesCooked});
+    console.log('A dish has been cooked');
+    return callback(updatedCompetitorObject);
+}
+
+// function  -
+function makeACompetitorCook(competitor, ingredient, dish, callback) {
+    collectTheIngredients(competitor, ingredients, dish, function (colTheIngreObj) {
+        washTheIngredient(colTheIngreObj, (washTheIngreobj) => {
+            console.log(washTheIngreobj.cookingInProgress, "is in the making");
+            setTimeout(() => {
+                cooking(washTheIngreobj, function (cookingDoneObj) {
+                    completeTheCooking(cookingDoneObj, function (completeCookingObj) {
+                        increaseTotalDishesCooked(completeCookingObj, function (increasedTotalDishes) {
+                            competitor = increasedTotalDishes;
+                            callback(competitor);
+                        })
+                    })
+                })
+            }, 3000) // 3000 ms  =  3 min
+        })
+    })
+}
+
+
+console.log(competitor);
+makeACompetitorCook(competitor, ingredients, dish, function (competitor) {
+    console.log(competitor);
+});
+
+
 
