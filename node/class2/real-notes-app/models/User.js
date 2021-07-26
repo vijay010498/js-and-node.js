@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const {Password} = require('../services/auth')
 const UserSchema = new mongoose.Schema({
     email: {
         type: String,
@@ -11,6 +11,13 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     }
+})
+UserSchema.pre("save", async function (done) {
+    if (this.isModified("password")) {
+        const hashed = await Password.toHash(this.get("password"));
+        this.set("password", hashed);
+    }
+    done();
 })
 
 
