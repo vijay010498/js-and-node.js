@@ -6,6 +6,7 @@ const {User} = require("../../models/User")
 const jwt = require('jsonwebtoken');
 const chalk = require('chalk');
 const {Password} = require("../../services/auth");
+const {requireAuth} = require("../../middlewares/auth/require-user-auth")
 
 router.get("/api/sayHi", (req, res) => {
     res.status(200).send('Hi ALL AKjdaksjd');
@@ -69,6 +70,41 @@ router.post("/api/v1/user/signIn", async (req, res) => {
         res.status(401).send(err);
     }
 })
+
+router.patch("/api/v1/user/changePassword", requireAuth, async (req, res) => {
+    const {oldPassword, newPassword} = req.body
+    const payload = await jwt.verify(req.session.JWT, "29i8379287uz01m8zw09128wWZ<(_012w8zem109832z");
+    const email = payload.email.toString();
+    const existingUser = await User.findOne({email});
+    const passwordMatches = await Password.compare(existingUser.password, oldPassword);
+    if (!passwordMatches)
+        res.status(401).send("Old password not valid");
+    try {
+        await User.findOneAndUpdate({
+            email: email
+        }, {
+            $set: {
+                password: newPassword
+            }
+        })
+        // generate session
+        const JWT = await jwt.sign({
+            email: existingUser.email
+        }, "29i8379287uz01m8zw09128wWZ<(_012w8zem109832z", {
+            expiresIn: "1d",
+            algorithm: "HS512"
+        });
+        req.session = {
+            JWT
+        }
+        res.status(201).send({
+            message: "Password updated"
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(401).send(err);
+    }
+});
 
 // router.post("/api/v1/user/signIn", async (req, res) => {
 //     try {

@@ -19,6 +19,18 @@ UserSchema.pre("save", async function (done) {
     }
     done();
 })
+UserSchema.pre("findOneAndUpdate", async function (done) {
+    const password = this.getUpdate().$set.password;
+    if (!password) {
+        return done();
+    }
+    try {
+        const hashed = await Password.toHash(password);
+        this.set("password", hashed)
+    } catch (err) {
+        return done(err);
+    }
+})
 
 
 const User = mongoose.model("User", UserSchema);
