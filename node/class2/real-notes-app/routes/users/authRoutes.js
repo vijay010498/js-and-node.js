@@ -3,8 +3,11 @@ const router = express.Router({
     caseSensitive: false
 });
 const {User} = require("../../models/User")
+const {OTP} = require("../../models/OTP");
 const jwt = require('jsonwebtoken');
 const chalk = require('chalk');
+const MailService = require("@sendgrid/mail");
+MailService.setApiKey("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");
 const {Password} = require("../../services/auth");
 const {requireAuth} = require("../../middlewares/auth/require-user-auth")
 
@@ -105,6 +108,64 @@ router.patch("/api/v1/user/changePassword", requireAuth, async (req, res) => {
         res.status(401).send(err);
     }
 });
+
+router.post("/api/v1/users/requestOTP", async (req, res) => {
+    const {email} = req.body;
+    const doesUserExists = await User.findOne({email});
+    if (!doesUserExists) {
+        res.status(401).send("Invalid email");
+    }
+    //
+    const alreadyRequested = await OTP.findOne({email});
+    if (alreadyRequested) {
+        res.status(401).send({
+            message: "OPT already requested please wait"
+        })
+    }
+    // 6 DIGIT OTP
+    const DIGIT = Math.floor(100000 + Math.random() * 900000);
+    const OTPEmail = {
+        to: {
+            email: email,
+            name: "TEST NAME"
+        },
+        from: {
+            email: "admin@oncampus.in",
+            name: "oncampus.in"
+        },
+        reply_to: {
+            email: "admin@oncampus.in",
+            name: "oncampus.in"
+        },
+        click_tracking: {
+            enable: true,
+            enable_text: true
+        },
+        open_tracking: {
+            enable: true
+        },
+        template_id: "d-9d3ee07ff23845889fd29df671e7b7d4",
+        dynamic_template_data: {
+            name: "TEST NAME",
+            PASS: DIGIT.toString()
+        }
+    }
+    try {
+        await MailService.send(OTPEmail);
+        // if OPT sent
+        const userOTP = {
+            OPT: DIGIT,
+            email
+        }
+        await OTP.create(userOTP);
+        res.status(200).send({
+            message: "OPT sent successfully, OTP will expire in 5 minutes"
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(400).send(err);
+    }
+})
 
 // router.post("/api/v1/user/signIn", async (req, res) => {
 //     try {
